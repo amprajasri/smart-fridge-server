@@ -7,9 +7,22 @@ app.use(cors());
 app.use(express.json());
  
 // API endpoint to get all items
-app.get('/items', (req, res) => {
- 
-  res.json({message:"succesfull"});
+app.get('/items', async (req, res) => {
+  try {
+      const query = 'SELECT * FROM items ORDER BY item_id';
+      const result = await pool.query(query);
+      
+      res.status(200).json({
+          message: 'Items retrieved successfully',
+          items: result.rows
+      });
+  } catch (error) {
+      console.error('Error fetching items:', error);
+      res.status(500).json({ 
+          error: 'Error fetching items from database',
+          details: error.message 
+      });
+  }
 });
 
 // API endpoint to add a new item
