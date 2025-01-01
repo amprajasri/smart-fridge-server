@@ -13,25 +13,37 @@ app.get('/items', (req, res) => {
 });
 
 // API endpoint to add a new item
-app.post('/items', (req, res) => {
-    const { item_name, item_mfg, item_exp } = req.body;
-    
-    // Validate required fields
-    if (!item_name || !item_mfg || !item_exp) {
-      res.status(400).json({ error: 'All fields are required: item_name, item_mfg, item_exp' });
-      return;
-    }
+app.post('/items', async (req, res) => {
+  const { item_name, item_mfg, item_exp } = req.body;
   
-    return res.status(200).json({
-      receivedData: {
-          item_name,
-          item_mfg,
-          item_exp
-      }
-  });
-  
-    
-  });
+  // Validate required fields
+  if (!item_name || !item_mfg || !item_exp) {
+    res.status(400).json({ error: 'All fields are required: item_name, item_mfg, item_exp' });
+    return;
+  }
+
+  try {
+      const query = `
+          INSERT INTO items (item_name, item_mfg, item_exp)
+          VALUES ($1, $2, $3)
+          RETURNING *
+      `;
+      
+      const values = [item_name, item_mfg, item_exp];
+      const result = await pool.query(query, values);
+      
+      res.status(201).json({
+          message: 'Item added successfully',
+          item: result.rows[0]
+      });
+  } catch (error) {
+      console.error('Error inserting item:', error);
+      res.status(500).json({ 
+          error: 'Error adding item to database',
+          details: error.message 
+      });
+  }
+});
 
   app.get('/', (request, response) => {
     console.log(request);
