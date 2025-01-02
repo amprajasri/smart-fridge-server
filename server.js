@@ -27,22 +27,22 @@ app.get('/items', async (req, res) => {
 
 // API endpoint to add a new item
 app.post('/items', async (req, res) => {
-  const { item_name, item_mfg, item_exp } = req.body;
+  const { item_name, item_mfd, item_exp } = req.body;
   
   // Validate required fields
-  if (!item_name || !item_mfg || !item_exp) {
-    res.status(400).json({ error: 'All fields are required: item_name, item_mfg, item_exp' });
+  if (!item_name || !item_mfd || !item_exp) {
+    res.status(400).json({ error: 'All fields are required: item_name, item_mfd, item_exp' });
     return;
   }
 
   try {
       const query = `
-          INSERT INTO items (item_name, item_mfg, item_exp)
+          INSERT INTO items (item_name, item_mfd, item_exp)
           VALUES ($1, $2, $3)
           RETURNING *
       `;
       
-      const values = [item_name, item_mfg, item_exp];
+      const values = [item_name, item_mfd, item_exp];
       const result = await pool.query(query, values);
       
       res.status(201).json({
